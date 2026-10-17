@@ -23,16 +23,18 @@ describe("NavbarComponent", () => {
     });
     const img = document.querySelector("img")!;
     expect(img.getAttribute("src")).toBe("/b.png");
-    expect(img.getAttribute("alt")).toBe("Budi");
+    expect(img.getAttribute("alt")).toBe("");
     expect(screen.getByText("Budi")).toBeInTheDocument();
+    expect(q("profile-dropdown-button")).toHaveAttribute("aria-label", "Menu akun Budi");
   });
 
-  it("should fall back to generic alt when photo exists without name", () => {
+  it("should keep avatar decorative and label the button when name is empty", () => {
     render(NavbarComponent, {
       props: { profile: { id: 1, name: "", email: "b@d.id", photo: "/b.png" } },
     });
-    expect(document.querySelector("img")!.getAttribute("alt")).toBe("User");
+    expect(document.querySelector("img")!.getAttribute("alt")).toBe("");
     expect(screen.getByText("Pengguna")).toBeInTheDocument();
+    expect(q("profile-dropdown-button")).toHaveAttribute("aria-label", "Menu akun Pengguna");
   });
 
   it("should call onToggleSidebar and handle a missing callback", async () => {
@@ -58,8 +60,10 @@ describe("NavbarComponent", () => {
   it("should open and close dropdown with the toggle button", async () => {
     render(NavbarComponent);
     expect(q("profile-dropdown-menu")).toBeNull();
+    expect(q("profile-dropdown-button")).toHaveAttribute("aria-expanded", "false");
     await fireEvent.click(q("profile-dropdown-button")!);
     expect(q("profile-dropdown-menu")).toBeInTheDocument();
+    expect(q("profile-dropdown-button")).toHaveAttribute("aria-expanded", "true");
     await fireEvent.click(q("profile-dropdown-button")!);
     expect(q("profile-dropdown-menu")).toBeNull();
   });

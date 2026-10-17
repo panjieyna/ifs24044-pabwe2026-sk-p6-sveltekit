@@ -31,7 +31,7 @@ describe("SidebarComponent", () => {
       "sidebar-link-pengguna",
       "sidebar-link-profil",
     ]) {
-      const active = screen.getByTestId(id).className.includes("from-violet-600");
+      const active = screen.getByTestId(id).className.includes("from-violet-700");
       expect(active).toBe(id === testId);
     }
   });
@@ -39,7 +39,7 @@ describe("SidebarComponent", () => {
   it("should not highlight any menu for unknown path", () => {
     render(SidebarComponent, { props: { currentPath: "/lainnya" } });
     expect(
-      document.querySelectorAll("a.from-violet-600, a[class*='from-violet-600']").length
+      document.querySelectorAll("a.from-violet-700, a[class*='from-violet-700']").length
     ).toBe(0);
   });
 

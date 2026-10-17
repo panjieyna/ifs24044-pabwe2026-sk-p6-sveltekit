@@ -46,14 +46,14 @@
     />
     <main class="flex-1 min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 md:ml-64 transition-all">
       {@render children?.()}
+      {#if isSidebarOpen}
+        <button
+          type="button"
+          class="fixed inset-0 z-20 bg-slate-900/40 md:hidden"
+          aria-label="Tutup sidebar"
+          onclick={() => (isSidebarOpen = false)}
+        ></button>
+      {/if}
     </main>
   </div>
-  {#if isSidebarOpen}
-    <button
-      type="button"
-      class="fixed inset-0 z-20 bg-slate-900/40 md:hidden"
-      aria-label="Tutup sidebar"
-      onclick={() => (isSidebarOpen = false)}
-    ></button>
-  {/if}
 </div>

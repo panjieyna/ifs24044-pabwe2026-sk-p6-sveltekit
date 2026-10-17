@@ -72,12 +72,12 @@
 </script>
 
 {#if loading && !course}
-  <div class="flex justify-center py-20 text-violet-600"><LoaderCircle size={32} class="animate-spin" /></div>
+  <div class="flex justify-center py-20 text-violet-700"><LoaderCircle size={32} class="animate-spin" /></div>
 {:else if !course}
-  <div class="text-center py-16 text-slate-500">Kursus tidak ditemukan</div>
+  <div class="text-center py-16 text-slate-600">Kursus tidak ditemukan</div>
 {:else}
   <div class="max-w-4xl mx-auto space-y-6">
-    <button type="button" onclick={() => goto("/")} class="inline-flex items-center gap-1.5 text-sm text-violet-600 hover:text-violet-800 font-medium">
+    <button type="button" onclick={() => goto("/")} class="inline-flex items-center gap-1.5 text-sm text-violet-700 hover:text-violet-800 font-medium">
       <ArrowLeft size={16} /> Kembali
     </button>
 
@@ -96,8 +96,8 @@
         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div>
             <h1 class="text-2xl font-extrabold text-slate-900">{course.title}</h1>
-            <p class="text-sm text-slate-500 mt-1">{course.description}</p>
-            <div class="flex flex-wrap gap-3 mt-3 text-xs text-slate-400">
+            <p class="text-sm text-slate-600 mt-1">{course.description}</p>
+            <div class="flex flex-wrap gap-3 mt-3 text-xs text-slate-600">
               <span>{course.author?.name || "—"}</span>
               <span class="inline-flex items-center gap-1"><Star size={12} class="text-amber-400 fill-amber-400" /> {course.avg_ratings != null ? Number(course.avg_ratings).toFixed(1) : "—"}</span>
               <span>{`${course.total_contents || 0} materi`}</span>
@@ -110,7 +110,7 @@
                 <Pencil size={14} /> Ubah
               </button>
             {:else if isStudent}
-              <button type="button" data-testid="leave-course-btn" onclick={handleLeave} class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-rose-50 text-rose-600 hover:bg-rose-100">
+              <button type="button" data-testid="leave-course-btn" onclick={handleLeave} class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-rose-50 text-rose-700 hover:bg-rose-100">
                 <UserMinus size={14} /> Keluar
               </button>
             {:else}
@@ -126,7 +126,7 @@
             <p class="text-sm font-semibold text-violet-800">Beri Rating</p>
             <div class="flex gap-1">
               {#each [1, 2, 3, 4, 5] as n}
-                <button type="button" data-testid={`rating-star-${n}`} onclick={() => (ratingValue = n)} class="p-1 {ratingValue >= n ? 'text-amber-400' : 'text-slate-300'}">
+                <button type="button" data-testid={`rating-star-${n}`} aria-label={`Beri ${n} bintang`} aria-pressed={ratingValue >= n} onclick={() => (ratingValue = n)} class="p-1 {ratingValue >= n ? 'text-amber-400' : 'text-slate-300'}">
                   <Star size={20} class={ratingValue >= n ? "fill-amber-400" : ""} />
                 </button>
               {/each}
@@ -141,7 +141,7 @@
     <!-- Contents -->
     <div class="rounded-3xl bg-white border border-violet-100 p-6 shadow-sm">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="font-bold text-slate-900 flex items-center gap-2"><Video size={18} class="text-violet-500" /> Daftar Materi</h2>
+        <h2 class="font-bold text-slate-900 flex items-center gap-2"><Video size={18} class="text-violet-700" /> Daftar Materi</h2>
         {#if isOwner}
           <button type="button" data-testid="add-content-btn" onclick={() => { editContent = null; showContent = true; }} class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold text-white bg-violet-600">
             <Plus size={14} /> Tambah
@@ -149,21 +149,21 @@
         {/if}
       </div>
       {#if !course.contents?.length}
-        <p class="text-sm text-slate-400 text-center py-8">Belum ada materi</p>
+        <p class="text-sm text-slate-600 text-center py-8">Belum ada materi</p>
       {:else}
         <ul class="space-y-2" data-testid="content-list">
           {#each course.contents as c (c.id)}
             <li class="flex items-center gap-3 p-3 rounded-xl border border-violet-50 hover:bg-violet-50/50 transition-colors">
               <a href={`/courses/${courseId}/contents/${c.id}`} class="flex-1 min-w-0">
                 <p class="font-medium text-slate-800 truncate">{c.title}</p>
-                <p class="text-xs text-slate-400 truncate">{c.youtube}</p>
+                <p class="text-xs text-slate-600 truncate">{c.youtube}</p>
               </a>
               {#if c.my_status_finished}
-                <span class="text-[10px] font-bold uppercase tracking-wide text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Selesai</span>
+                <span class="text-[10px] font-bold uppercase tracking-wide text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Selesai</span>
               {/if}
               {#if isOwner}
-                <button type="button" onclick={() => { editContent = c; showContent = true; }} class="p-1.5 rounded-lg text-violet-500 hover:bg-violet-100"><Pencil size={14} /></button>
-                <button type="button" onclick={() => handleDeleteContent(c.id)} class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50"><Trash2 size={14} /></button>
+                <button type="button" aria-label={`Ubah materi ${c.title}`} onclick={() => { editContent = c; showContent = true; }} class="p-1.5 rounded-lg text-violet-700 hover:bg-violet-100"><Pencil size={14} aria-hidden="true" /></button>
+                <button type="button" aria-label={`Hapus materi ${c.title}`} onclick={() => handleDeleteContent(c.id)} class="p-1.5 rounded-lg text-rose-700 hover:bg-rose-50"><Trash2 size={14} aria-hidden="true" /></button>
               {/if}
             </li>
           {/each}
@@ -174,7 +174,7 @@
     <!-- Ratings list -->
     {#if course.ratings?.length}
       <div class="rounded-3xl bg-white border border-violet-100 p-6 shadow-sm">
-        <h2 class="font-bold text-slate-900 flex items-center gap-2 mb-4"><Users size={18} class="text-violet-500" /> Ulasan</h2>
+        <h2 class="font-bold text-slate-900 flex items-center gap-2 mb-4"><Users size={18} class="text-violet-700" /> Ulasan</h2>
         <ul class="space-y-3">
           {#each course.ratings as r}
             <li class="p-3 rounded-xl bg-violet-50/50 border border-violet-50">
@@ -184,7 +184,7 @@
                   <Star size={12} class="fill-amber-400" /> {r.ratings}
                 </span>
               </div>
-              {#if r.comment}<p class="text-xs text-slate-500 mt-1">{r.comment}</p>{/if}
+              {#if r.comment}<p class="text-xs text-slate-600 mt-1">{r.comment}</p>{/if}
             </li>
           {/each}
         </ul>

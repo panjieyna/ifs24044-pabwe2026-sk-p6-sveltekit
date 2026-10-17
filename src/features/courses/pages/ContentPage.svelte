@@ -48,21 +48,21 @@
   <button
     type="button"
     onclick={() => goto(courseId ? `/courses/${courseId}` : "/")}
-    class="inline-flex items-center gap-1.5 text-sm text-violet-600 hover:text-violet-800 font-medium"
+    class="inline-flex items-center gap-1.5 text-sm text-violet-700 hover:text-violet-800 font-medium"
   >
     <ArrowLeft size={16} /> Kembali ke Detail
   </button>
 
   {#if loading && !content}
-    <div class="flex justify-center py-20 text-violet-600"><LoaderCircle size={32} class="animate-spin" /></div>
+    <div class="flex justify-center py-20 text-violet-700"><LoaderCircle size={32} class="animate-spin" /></div>
   {:else if !content}
-    <div class="text-center py-16 text-slate-500">Materi tidak ditemukan</div>
+    <div class="text-center py-16 text-slate-600">Materi tidak ditemukan</div>
   {:else}
     <div class="rounded-3xl bg-white border border-violet-100 overflow-hidden shadow-sm">
       <div class="p-5 border-b border-violet-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-            <Video size={20} class="text-violet-500" />
+            <Video size={20} class="text-violet-700" />
             {content.title}
           </h1>
         </div>
@@ -95,7 +95,7 @@
             data-testid="youtube-player"
           ></iframe>
         {:else}
-          <div class="w-full h-full flex items-center justify-center text-slate-400">
+          <div class="w-full h-full flex items-center justify-center text-slate-600">
             URL YouTube tidak valid
           </div>
         {/if}

@@ -75,4 +75,12 @@ describe("AuthLayout", () => {
 
     expect(wrapper.text()).toContain("Masuk Akun");
   });
+
+  it("should expose a main landmark and a level-one heading", () => {
+    vi.spyOn(apiHelper, "getAccessToken").mockReturnValue(null);
+    renderWithProviders(AuthLayout, { preloadedState: { profile: null } });
+    expect(document.querySelectorAll("main").length).toBe(1);
+    const h1 = document.querySelector("main h1");
+    expect(h1).toHaveTextContent("Delcom Courses");
+  });
 });

@@ -26,17 +26,17 @@
   <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-violet-100 overflow-hidden">
     <div class="flex items-center justify-between px-5 py-4 border-b border-violet-50">
       <h2 class="font-bold text-slate-900">Tambah Kursus</h2>
-      <button type="button" onclick={() => onClose?.()} class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400" data-testid="add-modal-close">
-        <X size={18} />
+      <button type="button" aria-label="Tutup" onclick={() => onClose?.()} class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600" data-testid="add-modal-close">
+        <X size={18} aria-hidden="true" />
       </button>
     </div>
     <form onsubmit={handleSubmit} class="p-5 space-y-4">
       <div>
-        <label for="add-title" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Judul</label>
+        <label for="add-title" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Judul</label>
         <input id="add-title" data-testid="add-title-input" bind:value={title} required class="w-full px-3.5 py-2.5 rounded-xl border border-violet-100 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500" placeholder="Judul kursus" />
       </div>
       <div>
-        <label for="add-desc" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Deskripsi</label>
+        <label for="add-desc" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Deskripsi</label>
         <textarea id="add-desc" data-testid="add-desc-input" bind:value={description} rows="3" class="w-full px-3.5 py-2.5 rounded-xl border border-violet-100 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500" placeholder="Deskripsi singkat"></textarea>
       </div>
       <div class="flex justify-end gap-2 pt-2">

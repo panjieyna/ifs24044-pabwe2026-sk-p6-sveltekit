@@ -76,6 +76,7 @@ describe("CourseLayout", () => {
 
     await fireEvent.click(screen.getByTestId("toggle-sidebar-btn"));
     const overlay = screen.getByLabelText("Tutup sidebar");
+    expect(overlay.closest("main")).not.toBeNull();
     await fireEvent.click(overlay);
     expect(screen.queryByLabelText("Tutup sidebar")).toBeNull();
 

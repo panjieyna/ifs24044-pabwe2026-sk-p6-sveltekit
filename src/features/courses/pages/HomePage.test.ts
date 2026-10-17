@@ -74,6 +74,17 @@ describe("HomePage", () => {
     expect(screen.getByTestId("loading")).toBeInTheDocument();
   });
 
+  it("should use h2 for card titles and keep delete button outside the link", () => {
+    setup();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Semua Kursus");
+    expect(screen.getByRole("heading", { level: 2, name: "Svelte Dasar" })).toBeInTheDocument();
+    expect(document.querySelectorAll("h3").length).toBe(0);
+    const del = screen.getByTestId("delete-course-1");
+    expect(del.closest("a")).toBeNull();
+    expect(del).toHaveAttribute("aria-label", "Hapus kursus Svelte Dasar");
+    expect(document.querySelector("img")!.getAttribute("alt")).toBe("");
+  });
+
   it("should show delete button only for own courses", () => {
     setup();
     expect(screen.getByTestId("delete-course-1")).toBeInTheDocument();
