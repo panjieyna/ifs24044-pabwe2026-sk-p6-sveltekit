@@ -1,7 +1,7 @@
 import { render } from "@testing-library/svelte";
 import { authStore } from "./features/auth/states/authStore";
 import { usersStore } from "./features/users/states/usersStore";
-import { todosStore } from "./features/todos/states/todosStore";
+import { coursesStore } from "./features/courses/states/coursesStore";
 import { mockPageStore, mockGoto, updateMockPage } from "./setupTests";
 
 export function setupMockStores(initialState: Record<string, any> = {}) {
@@ -11,8 +11,8 @@ export function setupMockStores(initialState: Record<string, any> = {}) {
   if (typeof (usersStore as any).reset === "function") {
     (usersStore as any).reset();
   }
-  if (typeof (todosStore as any).reset === "function") {
-    (todosStore as any).reset();
+  if (typeof (coursesStore as any).reset === "function") {
+    (coursesStore as any).reset();
   }
 
   Object.entries(initialState).forEach(([key, val]) => {
@@ -30,16 +30,16 @@ export function setupMockStores(initialState: Record<string, any> = {}) {
         (usersStore as any)[setter](val);
       }
     }
-    if ((todosStore as any).$state && key in (todosStore as any).$state) {
-      (todosStore as any).$state[key] = val;
+    if ((coursesStore as any).$state && key in (coursesStore as any).$state) {
+      (coursesStore as any).$state[key] = val;
       const setter = `set${key.charAt(0).toUpperCase() + key.slice(1)}`;
-      if (typeof (todosStore as any)[setter] === "function") {
-        (todosStore as any)[setter](val);
+      if (typeof (coursesStore as any)[setter] === "function") {
+        (coursesStore as any)[setter](val);
       }
     }
   });
 
-  return { authStore, usersStore, todosStore };
+  return { authStore, usersStore, coursesStore };
 }
 
 export function createMockPinia(initialState: Record<string, any> = {}) {
@@ -63,7 +63,7 @@ export function renderWithProviders(
     ...options
   }: RenderWithProvidersOptions = {}
 ) {
-  const { authStore: a, usersStore: u, todosStore: t } = setupMockStores(preloadedState);
+  const { authStore: a, usersStore: u, coursesStore: c } = setupMockStores(preloadedState);
   if (route) {
     const url = new URL(route, "http://localhost:3000");
     updateMockPage({
@@ -136,7 +136,7 @@ export function renderWithProviders(
     wrapper,
     authStore: a,
     usersStore: u,
-    todosStore: t,
+    coursesStore: c,
     mockPageStore,
     mockGoto,
   };

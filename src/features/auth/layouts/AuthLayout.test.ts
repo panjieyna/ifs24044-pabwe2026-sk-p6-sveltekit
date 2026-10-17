@@ -19,7 +19,7 @@ describe("AuthLayout", () => {
       },
     });
 
-    expect(wrapper.text()).toContain("Delcom Todo");
+    expect(wrapper.text()).toContain("Delcom Courses");
     expect(wrapper.text()).toContain("Masuk Akun");
     expect(wrapper.text()).toContain("Daftar Baru");
   });

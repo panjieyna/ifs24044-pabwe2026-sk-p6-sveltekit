@@ -34,14 +34,14 @@
       <a
         href={menu.href}
         onclick={() => onClose?.()}
-        data-testid="sidebar-link-{menu.label.toLowerCase().replace(/\s+/g, '-')}"
+        data-testid={`sidebar-link-${menu.label.toLowerCase().replace(/\s+/g, "-")}`}
         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
           {active
             ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-md shadow-violet-500/20'
             : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700'}"
       >
         <menu.icon size={18} strokeWidth={active ? 2.5 : 2} />
-        {menu.label}
+        {`${menu.label}`}
       </a>
     {/each}
   </nav>

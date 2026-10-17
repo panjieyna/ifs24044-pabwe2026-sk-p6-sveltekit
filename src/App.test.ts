@@ -1,24 +1,40 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { screen } from "@testing-library/svelte";
+import { createRawSnippet } from "svelte";
 import RootLayout from "./routes/+layout.svelte";
 import { ssr } from "./routes/+layout";
 import RootPage from "./routes/+page.svelte";
 import RootError from "./routes/+error.svelte";
-import AuthLayout from "./routes/auth/+layout.svelte";
+import AuthLayoutRoute from "./routes/auth/+layout.svelte";
 import LoginPageWrapper from "./routes/auth/login/+page.svelte";
 import RegisterPageWrapper from "./routes/auth/register/+page.svelte";
 import ProfilePageWrapper from "./routes/profile/+page.svelte";
-import TodoDetailPageWrapper from "./routes/todos/[todoId]/+page.svelte";
 import UsersPageWrapper from "./routes/users/+page.svelte";
+import CourseDetailWrapper from "./routes/courses/[courseId]/+page.svelte";
+import ContentWrapper from "./routes/courses/[courseId]/contents/[contentId]/+page.svelte";
 import { renderWithProviders } from "./test-utils";
-import { mockPageStore, updateMockPage } from "./setupTests";
+import { updateMockPage } from "./setupTests";
 import apiHelper from "./helpers/apiHelper";
+import { coursesStore } from "./features/courses/states/coursesStore";
+import { usersStore } from "./features/users/states/usersStore";
+
+const children = createRawSnippet(() => ({
+  render: () => '<div data-testid="route-child">Anak</div>',
+}));
+const profile = { id: 1, name: "Logged User", email: "user@del.org" };
 
 describe("SvelteKit Routes and Layouts", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
+    vi.spyOn(apiHelper, "getAccessToken").mockReturnValue("valid-token");
+    vi.spyOn(coursesStore, "asyncSetCourses").mockResolvedValue();
+    vi.spyOn(coursesStore, "asyncSetCourse").mockResolvedValue();
+    vi.spyOn(coursesStore, "asyncSetContent").mockResolvedValue();
+    vi.spyOn(usersStore, "asyncSetUsers").mockResolvedValue();
     updateMockPage({
       url: new URL("http://localhost/"),
-      params: { todoId: "1" },
+      params: {},
       route: { id: "/" },
       status: 200,
       error: null,
@@ -27,104 +43,115 @@ describe("SvelteKit Routes and Layouts", () => {
     });
   });
 
-  it("should verify ssr is true in +layout.ts", () => {
-    expect(ssr).toBe(true);
+  it("should disable SSR in +layout.ts", () => {
+    expect(ssr).toBe(false);
   });
 
-  it("should render RootLayout for non-auth route using TodoLayout", () => {
-    vi.spyOn(apiHelper, "getAccessToken").mockReturnValue("valid-token");
-    const { wrapper } = renderWithProviders(RootLayout, {
-      preloadedState: {
-        profile: { id: 1, name: "Logged User", email: "user@del.org" },
-      },
+  it("should wrap non-auth routes with CourseLayout", () => {
+    renderWithProviders(RootLayout, { props: { children }, preloadedState: { profile } });
+    expect(screen.getAllByText("Delcom Courses").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
+    expect(screen.getByTestId("route-child")).toBeInTheDocument();
+  });
+
+  it("should render /auth routes without the course layout", () => {
+    renderWithProviders(RootLayout, {
+      props: { children },
+      route: "/auth/login",
+      preloadedState: { profile },
     });
-
-    expect(wrapper.text()).toContain("Delcom Todo");
+    expect(screen.queryByTestId("sidebar")).toBeNull();
+    expect(screen.getByTestId("route-child")).toBeInTheDocument();
   });
 
-  it("should render RootLayout for /auth route directly", async () => {
-    const { wrapper } = renderWithProviders(RootLayout, { route: "/auth/login" });
-    expect(wrapper.text()).not.toContain("Delcom Todo");
+  it("should render RootLayout without children", () => {
+    const { unmount } = renderWithProviders(RootLayout, { preloadedState: { profile } });
+    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
+    unmount();
+    renderWithProviders(RootLayout, { route: "/auth/login" });
+    expect(screen.queryByTestId("route-child")).toBeNull();
   });
 
-  it("should dynamically switch layout between non-auth and auth route on navigation", async () => {
-    vi.spyOn(apiHelper, "getAccessToken").mockReturnValue("valid-token");
-    const { wrapper } = renderWithProviders(RootLayout, {
-      route: "/",
-      preloadedState: {
-        profile: { id: 1, name: "Logged User", email: "user@del.org" },
-      },
-    });
+  it("should switch layout when navigating between auth and non-auth routes", async () => {
+    renderWithProviders(RootLayout, { props: { children }, preloadedState: { profile } });
+    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
 
-    expect(wrapper.text()).toContain("Delcom Todo");
-
-    // Navigate to /auth/login (simulating logout)
     updateMockPage({ url: new URL("http://localhost:3000/auth/login") });
     await new Promise((r) => setTimeout(r, 0));
-    expect(wrapper.text()).not.toContain("Delcom Todo");
+    expect(screen.queryByTestId("sidebar")).toBeNull();
 
-    // Navigate back to / (simulating login)
     updateMockPage({ url: new URL("http://localhost:3000/") });
     await new Promise((r) => setTimeout(r, 0));
-    expect(wrapper.text()).toContain("Delcom Todo");
+    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
   });
 
-  it("should render RootPage (+page.svelte)", () => {
-    const { wrapper } = renderWithProviders(RootPage, {
+  it("should render the home route (+page.svelte) as course list", () => {
+    renderWithProviders(RootPage, { preloadedState: { profile, courses: [] } });
+    expect(screen.getByText("Semua Kursus")).toBeInTheDocument();
+  });
+
+  it("should render +error.svelte as not found page", () => {
+    renderWithProviders(RootError);
+    expect(screen.getByText("404")).toBeInTheDocument();
+    expect(screen.getByText("Halaman Tidak Ditemukan")).toBeInTheDocument();
+  });
+
+  it("should render auth layout route with and without children", () => {
+    const { unmount } = renderWithProviders(AuthLayoutRoute, {
+      props: { children },
+      route: "/auth/login",
+    });
+    expect(screen.getAllByText("Delcom Courses").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("route-child")).toBeInTheDocument();
+    unmount();
+    renderWithProviders(AuthLayoutRoute, { route: "/auth/login" });
+    expect(screen.queryByTestId("route-child")).toBeNull();
+  });
+
+  it("should render login route with required selectors", () => {
+    renderWithProviders(LoginPageWrapper);
+    expect(screen.getByText("Masuk Sekarang")).toBeInTheDocument();
+    expect(document.querySelector("#login-email-input")).toBeInTheDocument();
+    expect(document.querySelector("#login-password-input")).toBeInTheDocument();
+    expect(document.querySelector("#login-submit-button")).toBeInTheDocument();
+  });
+
+  it("should render register route", () => {
+    renderWithProviders(RegisterPageWrapper);
+    expect(screen.getByText("Daftar Sekarang")).toBeInTheDocument();
+  });
+
+  it("should render profile route", () => {
+    renderWithProviders(ProfilePageWrapper, { preloadedState: { profile } });
+    expect(screen.getByText("Profil Akun")).toBeInTheDocument();
+  });
+
+  it("should render users route", () => {
+    renderWithProviders(UsersPageWrapper, {
+      preloadedState: { users: [{ id: 1, name: "User Satu", email: "satu@del.org" }] },
+    });
+    expect(screen.getByText("Semua Pengguna")).toBeInTheDocument();
+  });
+
+  it("should render course detail route reading params.courseId", () => {
+    renderWithProviders(CourseDetailWrapper, {
       preloadedState: {
-        profile: { id: 1, name: "Logged User" },
-        todos: [],
+        profile,
+        course: { id: 5, user_id: 2, title: "Detail Test", description: "Desc" },
       },
     });
-    expect(wrapper.exists()).toBe(true);
+    updateMockPage({ params: { courseId: "5" } });
+    expect(screen.getByText("Detail Test")).toBeInTheDocument();
   });
 
-  it("should render RootError (+error.svelte)", () => {
-    const { wrapper } = renderWithProviders(RootError);
-    expect(wrapper.text()).toContain("404");
-    expect(wrapper.text()).toContain("Halaman Tidak Ditemukan");
-  });
-
-  it("should render AuthLayout (routes/auth/+layout.svelte)", () => {
-    const { wrapper } = renderWithProviders(AuthLayout);
-    expect(wrapper.text()).toContain("Delcom Todo");
-  });
-
-  it("should render LoginPageWrapper (routes/auth/login/+page.svelte)", () => {
-    const { wrapper } = renderWithProviders(LoginPageWrapper);
-    expect(wrapper.text()).toContain("Masuk Sekarang");
-  });
-
-  it("should render RegisterPageWrapper (routes/auth/register/+page.svelte)", () => {
-    const { wrapper } = renderWithProviders(RegisterPageWrapper);
-    expect(wrapper.text()).toContain("Daftar Sekarang");
-  });
-
-  it("should render ProfilePageWrapper (routes/profile/+page.svelte)", () => {
-    const { wrapper } = renderWithProviders(ProfilePageWrapper, {
+  it("should render content route reading params", () => {
+    renderWithProviders(ContentWrapper, {
       preloadedState: {
-        profile: { id: 1, name: "Logged User", email: "user@del.org" },
+        profile,
+        content: { id: 9, course_id: 5, title: "Materi Uji", youtube: "https://youtu.be/abcdefghijk" },
       },
     });
-    expect(wrapper.text()).toContain("Profil Akun");
-  });
-
-  it("should render TodoDetailPageWrapper (routes/todos/[todoId]/+page.svelte)", () => {
-    const { wrapper } = renderWithProviders(TodoDetailPageWrapper, {
-      preloadedState: {
-        profile: { id: 1, name: "Logged User" },
-        todo: { id: 1, title: "Detail Test", description: "Desc", is_finished: 0 },
-      },
-    });
-    expect(wrapper.text()).toContain("Detail Test");
-  });
-
-  it("should render UsersPageWrapper (routes/users/+page.svelte)", () => {
-    const { wrapper } = renderWithProviders(UsersPageWrapper, {
-      preloadedState: {
-        users: [{ id: 1, name: "User Satu", email: "satu@del.org" }],
-      },
-    });
-    expect(wrapper.text()).toContain("Semua Pengguna");
+    updateMockPage({ params: { courseId: "5", contentId: "9" } });
+    expect(screen.getByText("Materi Uji")).toBeInTheDocument();
   });
 });

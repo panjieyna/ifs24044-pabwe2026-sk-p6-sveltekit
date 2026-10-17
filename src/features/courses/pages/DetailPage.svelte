@@ -100,7 +100,7 @@
             <div class="flex flex-wrap gap-3 mt-3 text-xs text-slate-400">
               <span>{course.author?.name || "—"}</span>
               <span class="inline-flex items-center gap-1"><Star size={12} class="text-amber-400 fill-amber-400" /> {course.avg_ratings != null ? Number(course.avg_ratings).toFixed(1) : "—"}</span>
-              <span>{course.total_contents || 0} materi</span>
+              <span>{`${course.total_contents || 0} materi`}</span>
               <span>{formatDate(course.created_at)}</span>
             </div>
           </div>
@@ -121,14 +121,12 @@
           </div>
         </div>
 
-        {#if isOwner}
-          <!-- Owner UI first when both -->
-        {:else if isStudent}
+        {#if isStudent}
           <div class="mt-5 p-4 rounded-2xl bg-violet-50 border border-violet-100 space-y-3" data-testid="rating-box">
             <p class="text-sm font-semibold text-violet-800">Beri Rating</p>
             <div class="flex gap-1">
               {#each [1, 2, 3, 4, 5] as n}
-                <button type="button" onclick={() => (ratingValue = n)} class="p-1 {ratingValue >= n ? 'text-amber-400' : 'text-slate-300'}">
+                <button type="button" data-testid={`rating-star-${n}`} onclick={() => (ratingValue = n)} class="p-1 {ratingValue >= n ? 'text-amber-400' : 'text-slate-300'}">
                   <Star size={20} class={ratingValue >= n ? "fill-amber-400" : ""} />
                 </button>
               {/each}
@@ -136,23 +134,6 @@
             <input bind:value={ratingComment} placeholder="Komentar (opsional)" class="w-full px-3 py-2 rounded-xl border border-violet-100 text-sm" data-testid="rating-comment" />
             <button type="button" onclick={handleRate} data-testid="rating-submit" class="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-violet-600">Kirim Rating</button>
           </div>
-        {/if}
-
-        {#if isOwner || isStudent}
-          {#if isOwner && isStudent}
-            <div class="mt-5 p-4 rounded-2xl bg-violet-50 border border-violet-100 space-y-3" data-testid="rating-box">
-              <p class="text-sm font-semibold text-violet-800">Beri Rating</p>
-              <div class="flex gap-1">
-                {#each [1, 2, 3, 4, 5] as n}
-                  <button type="button" onclick={() => (ratingValue = n)} class="p-1 {ratingValue >= n ? 'text-amber-400' : 'text-slate-300'}">
-                    <Star size={20} class={ratingValue >= n ? "fill-amber-400" : ""} />
-                  </button>
-                {/each}
-              </div>
-              <input bind:value={ratingComment} placeholder="Komentar (opsional)" class="w-full px-3 py-2 rounded-xl border border-violet-100 text-sm" />
-              <button type="button" onclick={handleRate} class="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-violet-600">Kirim Rating</button>
-            </div>
-          {/if}
         {/if}
       </div>
     </div>
@@ -173,7 +154,7 @@
         <ul class="space-y-2" data-testid="content-list">
           {#each course.contents as c (c.id)}
             <li class="flex items-center gap-3 p-3 rounded-xl border border-violet-50 hover:bg-violet-50/50 transition-colors">
-              <a href="/courses/{courseId}/contents/{c.id}" class="flex-1 min-w-0">
+              <a href={`/courses/${courseId}/contents/${c.id}`} class="flex-1 min-w-0">
                 <p class="font-medium text-slate-800 truncate">{c.title}</p>
                 <p class="text-xs text-slate-400 truncate">{c.youtube}</p>
               </a>

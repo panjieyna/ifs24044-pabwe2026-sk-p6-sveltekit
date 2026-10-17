@@ -24,7 +24,7 @@
   let loading = $derived($coursesStore.isCourse || $coursesStore.isCourseDelete);
 
   let filtered = $derived(
-    (courses || []).filter((c) => {
+    courses.filter((c) => {
       const q = search.trim().toLowerCase();
       const matchSearch =
         !q ||
@@ -144,9 +144,9 @@
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="course-list">
       {#each filtered as course (course.id)}
         <a
-          href="/courses/{course.id}"
+          href={`/courses/${course.id}`}
           class="group block rounded-2xl bg-white border border-violet-100 overflow-hidden shadow-sm hover:shadow-lg hover:border-violet-200 transition-all"
-          data-testid="course-card-{course.id}"
+          data-testid={`course-card-${course.id}`}
         >
           <div class="aspect-[16/9] bg-gradient-to-br from-violet-100 to-fuchsia-100 relative overflow-hidden">
             {#if course.cover}
@@ -163,7 +163,7 @@
             {#if profile && String(course.user_id) === String(profile.id)}
               <button
                 type="button"
-                data-testid="delete-course-{course.id}"
+                data-testid={`delete-course-${course.id}`}
                 onclick={(e) => handleDeleteOne(course.id, e)}
                 class="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 text-rose-500 hover:bg-rose-50 shadow"
               >
@@ -186,7 +186,7 @@
               </span>
             </div>
             <div class="flex items-center justify-between mt-2 text-[11px] text-slate-400">
-              <span>{course.total_contents || 0} materi</span>
+              <span>{`${course.total_contents || 0} materi`}</span>
               <span>{formatDate(course.created_at)}</span>
             </div>
           </div>
